@@ -48,7 +48,7 @@ git clone https://github.com/vsr2158/kiro-power-aws-organizations-account-migrat
   .kiro/powers/aws-organizations-account-migration
 ```
 
-The repository is private by default. Change visibility through GitHub only when you explicitly intend to share the Power publicly.
+This repository is public. Review the Power's safety model and documentation before using it against an AWS Organization.
 
 ## Prerequisites
 
@@ -64,6 +64,10 @@ The repository is private by default. Change visibility through GitHub only when
 > Assess source member account `123456789012` for direct transfer to target OU `<ou-id>` after it has been selected from the organization report. Create the per-account reports under `reports/123456789012/`; do not make changes.
 
 > The account is approved for invitation. Show the exact target-side API call, account and target organization identities, handshake evidence to collect, and the post-invitation stop condition. Do not run it yet.
+
+## Research
+
+- [`ir research.md`](ir%20research.md) — the full AWS Organizations account-migration readiness checklist, source coverage, announcement review, direct-transfer procedure, and references that inform this Power.
 
 ## Documentation
 
