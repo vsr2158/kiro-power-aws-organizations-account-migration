@@ -1,0 +1,38 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "block-legacy-account-removal",
+      "description": "Blocks standalone account removal or departure from an AWS Organization during direct transfer.",
+      "trigger": "PreToolUse",
+      "matcher": "aws___call_aws|aws___run_script",
+      "action": {
+        "type": "agent",
+        "prompt": "Before executing this AWS API call, determine whether it invokes organizations:LeaveOrganization or organizations:RemoveAccountFromOrganization. If it does, BLOCK it. Explain that this Power only supports the direct-transfer path (target invitation followed by acceptance) and does not permit a standalone period. Also block attempts to weaken departure-protection SCPs as a workaround. Otherwise continue to the remaining safety checks."
+      },
+      "enabled": true
+    },
+    {
+      "name": "require-migration-transition-approval",
+      "description": "Requires explicit approval and an account-specific manifest before migration writes.",
+      "trigger": "PreToolUse",
+      "matcher": "aws___call_aws|aws___run_script",
+      "action": {
+        "type": "agent",
+        "prompt": "Before executing an AWS mutation, check whether it is an Organizations migration transition or related cleanup, including InviteAccountToOrganization, AcceptHandshake, MoveAccount, CreatePolicy, AttachPolicy, DetachPolicy, RegisterDelegatedAdministrator, DeregisterDelegatedAdministrator, or a service configuration change. For a matching mutation, require all of the following: (1) exactly one approved account ID from a signed manifest; (2) verified source, target, and actor account/role identities; (3) the direct-transfer state and expected next state; (4) an approved change window and named owner; (5) an explicit operator approval for this exact action after a plan with impact and recovery limitations was presented; (6) an existing report directory for the account, with a readiness report and a `PLANNED` row in the execution journal for this exact action. Block the call if any item is missing. Read-only List, Describe, and Get operations may proceed."
+      },
+      "enabled": true
+    },
+    {
+      "name": "verify-direct-transfer-transition",
+      "description": "Enforces expected state checks after each approved direct-transfer mutation.",
+      "trigger": "PostToolUse",
+      "matcher": "aws___call_aws|aws___run_script",
+      "action": {
+        "type": "agent",
+        "prompt": "After an AWS migration mutation, determine whether it was InviteAccountToOrganization, AcceptHandshake, or MoveAccount. If so, report the account ID, actor identity, timestamp, API response, and evidence location. Require the relevant verification before the next transition: after invite, an open handshake matching the approved source/target/account; after acceptance, target organization membership and initial target-root placement; after move, target OU parent and effective policy/Control Tower impact. On failure or uncertainty, mark the account BLOCKED and do not advance the cohort."
+      },
+      "enabled": true
+    }
+  ]
+}
